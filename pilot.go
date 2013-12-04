@@ -12,13 +12,24 @@ import (
 var dbmap *gorp.DbMap
 
 func renderTemplate(w http.ResponseWriter, tmpl string, s *Submission) {
-	t, _ := template.ParseFiles(tmpl + ".html")
-	t.Execute(w, s)
+	t, err := template.ParseFiles(tmpl + ".html")
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
+	if err := t.Execute(w, s); err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
 }
 
 func viewHandler(w http.ResponseWriter, r *http.Request) {
 	idString := r.URL.Path[len("/view/"):]
-	id, _ := strconv.ParseInt(idString, 10, 64)
+	id, err := strconv.ParseInt(idString, 10, 64)
+	if err != nil {
+		http.Error(w, err.Error(), 500)
+		return
+	}
 	s, err := loadSubmission(id)
 	if err != nil || s == nil {
 		http.NotFound(w, r)
