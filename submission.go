@@ -12,6 +12,13 @@ type Submission struct {
 	Code    string
 }
 
+func (s *Submission) CreatedTime() time.Time {
+	const nsecInSec int64 = 1000000000
+	seconds := s.Created / nsecInSec
+	nanoseconds := s.Created % nsecInSec
+	return time.Unix(seconds, nanoseconds)
+}
+
 func (s *Submission) insert() error {
 	return dbmap.Insert(s)
 }
