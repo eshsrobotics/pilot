@@ -9,17 +9,11 @@ import (
 	"github.com/coopernurse/gorp"
 )
 
-var dbmap *gorp.DbMap
+var templates = template.Must(template.ParseFiles("view.html", "new.html"))
 
 func renderTemplate(w http.ResponseWriter, tmpl string, s *Submission) {
-	t, err := template.ParseFiles(tmpl + ".html")
-	if err != nil {
-		http.Error(w, err.Error(), 500)
-		return
-	}
-	if err := t.Execute(w, s); err != nil {
-		http.Error(w, err.Error(), 500)
-		return
+	if err := templates.ExecuteTemplate(w, tmpl+".html", s); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
 	}
 }
 
@@ -38,6 +32,24 @@ func viewHandler(w http.ResponseWriter, r *http.Request) {
 	renderTemplate(w, "view", s)
 }
 
+func newHandler(w http.ResponseWriter, r *http.Request) {
+	renderTemplate(w, "new", nil)
+}
+
+func saveHandler(w http.ResponseWriter, r *http.Request) {
+	title := r.FormValue("title")
+	author := r.FormValue("author")
+	code := r.FormValue("code")
+	s := newSubmission(title, author, code)
+	if err := s.insert(); err != nil {
+		http.Error(w, err.Error(), http.StatusInternalServerError)
+		return
+	}
+	http.Redirect(w, r, "/view/"+strconv.FormatInt(s.Id, 10), http.StatusFound)
+}
+
+var dbmap *gorp.DbMap
+
 func main() {
 	dbmap = initDb()
 	defer dbmap.Db.Close()
@@ -45,6 +57,8 @@ func main() {
 	fmt.Println("DB initialized")
 
 	http.HandleFunc("/view/", viewHandler)
+	http.HandleFunc("/new/", newHandler)
+	http.HandleFunc("/save/", saveHandler)
 	fmt.Println("Listening to port 1759")
 	http.ListenAndServe(":1759", nil)
 }

@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"time"
 )
 
@@ -13,19 +12,12 @@ type Submission struct {
 	Code    string
 }
 
-func (s *Submission) Insert() {
-	err := dbmap.Insert(&s)
-	if err != nil {
-		log.Fatalln("Insert failed", err)
-	}
+func (s *Submission) insert() error {
+	return dbmap.Insert(s)
 }
 
-func (s *Submission) Update() int64 {
-	count, err := dbmap.Update(&s)
-	if err != nil {
-		log.Fatalln("Insert failed", err)
-	}
-	return count
+func (s *Submission) update() (int64, error) {
+	return dbmap.Update(s)
 }
 
 func newSubmission(title, author, code string) *Submission {
