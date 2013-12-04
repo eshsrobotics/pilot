@@ -52,7 +52,15 @@ func saveHandler(w http.ResponseWriter, r *http.Request) {
 	http.Redirect(w, r, "/view/"+strconv.FormatInt(s.Id, 10), http.StatusFound)
 }
 
-var templates = template.Must(template.ParseFiles("index.html", "view.html", "new.html"))
+func assetHandler(w http.ResponseWriter, r *http.Request) {
+	http.ServeFile(w, r, r.URL.Path[len("/"):])
+}
+
+var templates = template.Must(template.ParseFiles(
+	"application.html",
+	"index.html",
+	"view.html",
+	"new.html"))
 
 func renderTemplate(w http.ResponseWriter, tmpl string, i interface{}) {
 	if err := templates.ExecuteTemplate(w, tmpl+".html", i); err != nil {
@@ -86,5 +94,6 @@ func main() {
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.HandleFunc("/new/", makeHandler(newHandler))
 	http.HandleFunc("/save/", makeHandler(saveHandler))
+	http.HandleFunc("/pilot.css", assetHandler)
 	http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
 }

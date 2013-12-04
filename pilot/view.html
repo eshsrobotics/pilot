@@ -1,4 +1,8 @@
-<h1>{{.Title}}</h1>
-<p><strong>Author:</strong> {{.Author}}</p>
+{{template "header"}}
+<div class="row">
+  <h1>{{.Title}}</h1>
+  <p><strong>Author:</strong> {{.Author}}</p>
 
-<pre>{{.Code}}</pre>
+  <pre class="code">{{.Code}}</pre>
+</div>
+{{template "footer"}}
