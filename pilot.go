@@ -2,6 +2,7 @@ package main
 
 import (
   "fmt"
+  "html/template"
   "net/http"
   "strconv"
 
@@ -10,11 +11,12 @@ import (
 
 var dbmap *gorp.DbMap
 
-func submissionHandler(w http.ResponseWriter, r *http.Request) {
-  idString := r.URL.Path[len("/submission/"):]
+func viewHandler(w http.ResponseWriter, r *http.Request) {
+  idString := r.URL.Path[len("/view/"):]
   id, _ := strconv.ParseInt(idString, 10, 64)
   s, _ := loadSubmission(id)
-  fmt.Fprintf(w, "<h1>%s</h1><div>%s</div><div>%s</div>", s.Title, s.Author, s.Code)
+  t, _ := template.ParseFiles("view.html")
+  t.Execute(w, s)
 }
 
 func main() {
@@ -23,8 +25,7 @@ func main() {
 
   fmt.Println("DB initialized")
 
-  http.HandleFunc("/submission/", submissionHandler)
-  http.ListenAndServe(":1759", nil)
-
+  http.HandleFunc("/view/", viewHandler)
   fmt.Println("Listening to port 1759")
+  http.ListenAndServe(":1759", nil)
 }
