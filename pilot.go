@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"html/template"
 	"net/http"
@@ -78,12 +79,12 @@ func main() {
 	dbmap = initDb()
 	defer dbmap.Db.Close()
 
-	fmt.Println("DB initialized")
+	var port = flag.Int("port", 1759, "port to run server on")
+	flag.Parse()
 
 	http.HandleFunc("/", makeHandler(rootHandler))
 	http.HandleFunc("/view/", makeHandler(viewHandler))
 	http.HandleFunc("/new/", makeHandler(newHandler))
 	http.HandleFunc("/save/", makeHandler(saveHandler))
-	fmt.Println("Listening to port 1759")
-	http.ListenAndServe(":1759", nil)
+	http.ListenAndServe(fmt.Sprintf(":%d", *port), nil)
 }
