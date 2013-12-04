@@ -39,7 +39,7 @@ func newSubmission(title, author, code string) *Submission {
 
 func loadSubmission(id int64) (*Submission, error) {
 	obj, err := dbmap.Get(Submission{}, id)
-	if err != nil {
+	if err != nil || obj == nil {
 		return nil, err
 	}
 	return obj.(*Submission), nil
